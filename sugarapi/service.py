@@ -3,20 +3,46 @@
 API Service
 """
 import os
+import signal
 import uvicorn
 from sugarapi import apirouter
-from sugarapi.endpoints import systems
+from sugarapi.endpoints.systems import apirouter as systems_api_router
+from multiprocessing import Process
 
 
-def api_service(config):
+class APIService:
     """
-    Run API service.
+    API service.
     """
-    uvicorn.run(apirouter, host="127.0.0.1", port=8000, log_level="info", reload=True)
+    def __init__(self, config):
+        self._config = config
+        self._process = None
 
+    def _start_service(self) -> None:
+        """
+        Start service.
 
-if __name__ == "__main__":
-    r = "/home/bo/work/sugar/sugar/etc/sugar/ssl"
-    uvicorn.run(apirouter, host="127.0.0.1", port=8000, log_level="info", reload=True,
-                ssl_keyfile=os.path.join(r, "key.pem"),
-                ssl_certfile=os.path.join(r, "cert.pem"))
+        :return: None
+        """
+        apirouter.include_router(systems_api_router)
+        uvicorn.run(apirouter, host="127.0.0.1", port=8000, log_level="info", reload=True,
+                    ssl_keyfile=os.path.join(self._config.config_path, "ssl", self._config.crypto.ssl.private),
+                    ssl_certfile=os.path.join(self._config.config_path, "ssl", self._config.crypto.ssl.certificate))
+
+    def start(self) -> None:
+        """
+        Run API service.
+
+        :return: None
+        """
+        self._process = Process(target=self._start_service)
+        self._process.daemon = True
+        self._process.start()
+
+    def stop(self) -> None:
+        """
+        Stop API service.
+
+        :return: None
+        """
+        os.kill(self._process.pid, signal.SIGTERM)
