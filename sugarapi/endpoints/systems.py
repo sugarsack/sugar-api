@@ -2,7 +2,8 @@
 """
 API for the systems.
 """
-from sugarapi import apirouter
+from fastapi import APIRouter
+apirouter = APIRouter()
 
 
 @apirouter.get("/systems")
