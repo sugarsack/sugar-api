@@ -5,9 +5,9 @@ API Service
 import os
 import signal
 import uvicorn
-from sugarapi import apirouter
+from sugarapi import apirouter, MasterRef
 from sugarapi.endpoints.systems import apirouter as systems_api_router
-from multiprocessing import Process
+from multiprocessing import Process, Pipe
 
 
 class APIService:
@@ -17,6 +17,18 @@ class APIService:
     def __init__(self, config):
         self._config = config
         self._process = None
+        self._running = True
+        self._channel = MasterRef(Pipe()).receiver
+
+    def queue_loop(self, target):
+        while self._running:
+            call_target = self._channel.recv()
+            if call_target is not None:
+                obj = call_target(target)
+                if obj is not None:
+                    self._channel.send(obj)
+                else:
+                    raise Exception("No such attribute: '{}'".format(call_target))
 
     def _start_service(self) -> None:
         """
@@ -45,4 +57,6 @@ class APIService:
 
         :return: None
         """
+        self._running = False
+        MasterRef().sender.send(None)
         os.kill(self._process.pid, signal.SIGTERM)
