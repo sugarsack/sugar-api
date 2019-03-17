@@ -27,3 +27,13 @@ def get_all_systems():
     return {
         "systems": list(get_master().pdata_store.clients())
     }
+
+
+@apirouter.get("/clients/status")
+def get_all_status():
+    """
+    Return all systems status. P-Data is not included.
+    """
+    return {
+        "systems": get_master().ref.core.peer_registry.get_status()
+    }
