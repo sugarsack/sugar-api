@@ -7,6 +7,7 @@ import signal
 import uvicorn
 from sugarapi import apirouter, MasterRef
 from sugarapi.endpoints.systems import apirouter as systems_api_router
+from sugarapi.endpoints.jobs import apirouter as jobs_api_router
 from multiprocessing import Process, Pipe
 
 
@@ -37,6 +38,7 @@ class APIService:
         :return: None
         """
         apirouter.include_router(systems_api_router)
+        apirouter.include_router(jobs_api_router)
         uvicorn.run(apirouter, host="127.0.0.1", port=8000, log_level="info", reload=True,
                     ssl_keyfile=os.path.join(self._config.config_path, "ssl", self._config.crypto.ssl.private),
                     ssl_certfile=os.path.join(self._config.config_path, "ssl", self._config.crypto.ssl.certificate))
