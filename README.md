@@ -1,3 +1,3 @@
 # Sugar API
 
-The API to the Sugar configuration management system.
+The OpenAPI/Swagger-based API subsystem to the Sugar configuration management.
