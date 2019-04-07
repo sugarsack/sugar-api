@@ -41,7 +41,7 @@ def expire(dt=None):
 
 
 @apirouter.get("/job/details")
-def get_job_detauls(jid):
+def get_job_details(jid):
     """
     Get job details.
 
