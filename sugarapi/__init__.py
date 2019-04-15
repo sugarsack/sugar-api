@@ -4,6 +4,7 @@ from fastapi import FastAPI
 from sugar.utils.objects import Singleton
 from sugar.config import get_config
 from sugar.components.server.pdatastore import PDataStore
+from sugar.lib.jobstore import JobStorage
 
 
 apirouter = FastAPI(title="Sugar API", version="0.0.0 Alpha")
@@ -109,6 +110,7 @@ class MasterRef:
     def __init__(self, channel=None):
         self.receiver, self.sender = channel if channel else (None, None)
         self.pdata_store = PDataStore(get_config().cache.path)
+        self.job_store = JobStorage(get_config())
 
     @property
     def ref(self):
